@@ -9,8 +9,7 @@ import java.util.Objects;
 
 public class PasajeroDAO {
 
-
-    public void save(Pasajero pasajero) {
+    public static void save(Pasajero pasajero) {
         try {
             Connection con = ConnectionDB.getConnection();
 

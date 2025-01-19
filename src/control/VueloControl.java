@@ -7,13 +7,14 @@ import modelo.VueloDAO;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class VueloControl {
-    private VueloDAO vueloDAO = new VueloDAO();
 
-    public void createVuelo(String codVuelo, LocalDate fechaSalida, String destino, String origen, ArrayList<Pasajero> pasajeros) {
+
+public class VueloControl {
+
+    public void createVuelo(String codVuelo, LocalDate fechaSalida, String destino, String origen) {
 
         Vuelo vuelo = new Vuelo();
-        vueloDAO.save(vuelo);
+        VueloDAO.newVuelo(vuelo);
         System.out.println("exito");
     }
 }

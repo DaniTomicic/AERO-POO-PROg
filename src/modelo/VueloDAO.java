@@ -13,10 +13,10 @@ import java.util.Objects;
 public class VueloDAO {
 
 
-    public void save(Vuelo vuelo) {
+    public static void newVuelo(Vuelo vuelo) {
         String vueloSQL = "INSERT INTO vuelos(vuelos.cod_vuelo,vuelos.fecha_salida,vuelos.destino,vuelos.procedencia) VALUES(?,?,?,?)";
 
-        String pasajeroSQl = "INSERT INTO vuelos(pasajeros.cod_vuelo,pasajeros.dni,pasajeros.nombre,pasajeros.telefono) VALUES(?,?,?,?)";
+        String pasajerosSQl = "INSERT INTO pasajeros(pasajeros.cod_vuelo,pasajeros.dni,pasajeros.nombre,pasajeros.telefono) VALUES(?,?,?,?)";
 
         try {
             Connection connection = ConnectionDB.getConnection();
@@ -24,6 +24,7 @@ public class VueloDAO {
 
             //guarda vuelo
             PreparedStatement vueloStatement = Objects.requireNonNull(con).prepareStatement(vueloSQL, PreparedStatement.RETURN_GENERATED_KEYS);
+
             vueloStatement.setString(1,vuelo.getCodVuelo());
             vueloStatement.setDate(2, java.sql.Date.valueOf(vuelo.getFechaSalida()));
             vueloStatement.setString(3, vuelo.getDestino());
@@ -33,17 +34,6 @@ public class VueloDAO {
             ResultSet generatedKeys = vueloStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
                 String cod_vuelo = generatedKeys.getString(1);
-
-                //guardar pasajeros
-                PreparedStatement pasajeroStatement = connection.prepareStatement(pasajeroSQl);
-                for (Pasajero p : vuelo.getPasajeros()) {
-
-                    pasajeroStatement.setString(1, p.getCodVuelo());
-                    pasajeroStatement.setString(3, p.getDNI());
-                    pasajeroStatement.setString(2, p.getNombre());
-                    pasajeroStatement.setString(3, p.getTelefono());
-                }
-                pasajeroStatement.executeUpdate();
             }
 
             vueloStatement.executeUpdate();
@@ -54,7 +44,9 @@ public class VueloDAO {
             throw new RuntimeException(e);
         }
     }
-    public Vuelo findByCodVuelo(String codVuelo, Vuelo vuelo) {
+
+
+    public static Vuelo findByCodVuelo(String codVuelo, Vuelo vuelo) {
         String vueloSQL = "SELECT * FROM vuelos WHERE vuelos.cod_vuelo = ?";
 
         String pasajerosSQL = "SELECT * FROM pasajeros WHERE pasajeros.cod_vuelo = ?";
@@ -88,5 +80,6 @@ public class VueloDAO {
         }catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return vuelo;
     }
 }
