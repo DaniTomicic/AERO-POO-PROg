@@ -2,47 +2,46 @@ package modelo;
 
 import DBRelated.ConnectionDB;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.swing.*;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.Objects;
 
 
 public class VueloDAO {
+    Connection con;
+    private String vueloSQL;
 
+    public VueloDAO(Connection con) {
+        this.con = con;
+    }
 
-    public static void newVuelo(Vuelo vuelo) {
-        String vueloSQL = "INSERT INTO vuelos(vuelos.cod_vuelo,vuelos.fecha_salida,vuelos.destino,vuelos.procedencia) VALUES(?,?,?,?)";
+    public void insertVuelo(Vuelo vuelo) throws SQLException {
+        vueloSQL = "insert into vuelos values(?,?,?,?)";
 
-        String pasajerosSQl = "INSERT INTO pasajeros(pasajeros.cod_vuelo,pasajeros.dni,pasajeros.nombre,pasajeros.telefono) VALUES(?,?,?,?)";
+            PreparedStatement ps = con.prepareStatement(vueloSQL);
 
-        try {
-            Connection connection = ConnectionDB.getConnection();
-            Connection con = ConnectionDB.getConnection();
+            ps.setString(1, vuelo.getCodVuelo());
+            ps.setDate(2, convertir(vuelo.getFechaSalida()));
+            ps.setString(3, vuelo.getDestino());
+            ps.setString(4,vuelo.getPorcedencia());
+            ps.executeUpdate();
+    }
+    public void search() throws SQLException {
+        vueloSQL = "select cod_vuelo from vuelos";
 
-            //guarda vuelo
-            PreparedStatement vueloStatement = Objects.requireNonNull(con).prepareStatement(vueloSQL, PreparedStatement.RETURN_GENERATED_KEYS);
+        Statement st = con.createStatement();
 
-            vueloStatement.setString(1,vuelo.getCodVuelo());
-            vueloStatement.setDate(2, java.sql.Date.valueOf(vuelo.getFechaSalida()));
-            vueloStatement.setString(3, vuelo.getDestino());
-            vueloStatement.setString(4, vuelo.getOrigen());
-
-            //obtener cod_vuelo
-            ResultSet generatedKeys = vueloStatement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                String cod_vuelo = generatedKeys.getString(1);
-            }
-
-            vueloStatement.executeUpdate();
-            System.out.println("Vuelo guardado exitosamente");
-
-        }catch (SQLException e) {
-            System.out.println("Error al guardar el vuelo");
-            throw new RuntimeException(e);
+        ResultSet rs = st.executeQuery(vueloSQL);
+        while (rs.next()) {
+            JOptionPane.showMessageDialog(null,rs.getString("cod_vuelo") + "\n");
         }
+    }
+
+    public java.sql.Date convertir(LocalDate fechaSalida) {
+        java.sql.Date fecha;
+        fecha = java.sql.Date.valueOf(fechaSalida);
+        return fecha;
     }
 
 
@@ -62,7 +61,7 @@ public class VueloDAO {
                 vuelo.setCodVuelo(vueloResultSet.getString(1));
                 vuelo.setFechaSalida(LocalDate.parse(vueloResultSet.getString(2)));
                 vuelo.setDestino(vueloResultSet.getString(3));
-                vuelo.setOrigen(vueloResultSet.getString(4));
+                vuelo.setPorcedencia(vueloResultSet.getString(4));
 
                 PreparedStatement pasajeroStatement = connection.prepareStatement(pasajerosSQL);
                 pasajeroStatement.setString(1, codVuelo);
