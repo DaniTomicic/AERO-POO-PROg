@@ -1,35 +1,74 @@
 package main;
 
 import DBRelated.ConnectionDB;
-import control.PasajeroControl;
 import control.VueloControl;
-import modelo.Vuelo;
 import modelo.VueloDAO;
-
 import javax.swing.*;
 import java.sql.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+
 
 public class Main {
-    public static void main(String[] args) throws SQLException {
+    private static VueloControl vueloControl;
 
-        //Llama al metodo de conexion en el paquete
-        Connection con = ConnectionDB.getConnection();
+    public static void main(String[] args) {
+        try {
+            //Llama al metodo de conexion en el paquete
+            Connection con = ConnectionDB.getConnection();
 
-        if (con == null) {
-            System.out.println("No connection");
-        }else {
-            VueloControl vueloControl = new VueloControl();
-            PasajeroControl pasajeroControl = new PasajeroControl();
+            if (con == null) {
+                System.out.println("No connection");
+            }else {
+                VueloDAO vueloDAO = new VueloDAO(con);
+                vueloControl = new VueloControl(vueloDAO);
+            }
+            mostrarMenu();
 
-            // Alta de un vuelo
-            vueloControl.createVuelo("AEAS001", LocalDate.parse("2025/01/21"),"Madrid", "Barcelona");
-
-            // Alta de pasajeros para ese vuelo
-            PasajeroControl.createPasajero("11111111P", "Dani Tomicic", "999999999", "AEAS001");
-
-            PasajeroControl.createPasajero("22222222Q", "Juan Pérez", "888888888", "AEAS001");
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
         }
+
+
+
+    }
+    public static void mostrarMenu() {
+        boolean isFinished=false;
+        String[] opciones = {
+                "1. Crear Vuelo","2. Modificar Vuelo","3. Eliminar Vuelo","4. Mostrar Vuelos","5. Crear Pasajero","6. Modificar Pasajero","7. Eliminar Pasajero","8. Mostrar Pasajeros","9.Vuelos por Procedencia","10. Vuelos por Destino","11. Pasajeros por vuelo","12. Vuelo de un Pasajero","13. Salir"};
+
+        do {
+            try {
+                String eleccion = (String) JOptionPane.showInputDialog(null,
+                        "Ingrese el opcion: ",
+                        "Opciones",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        opciones,
+                        opciones[0]
+                );
+
+                int opcion = Integer.parseInt(eleccion.split("\\.")[0]);
+
+                switch (opcion) {
+                    case 1:{
+                        vueloControl.insert();
+                        break;
+                    }
+                    case 2:{
+                        vueloControl.modify();
+                        break;
+                    }
+                    case 13:{
+                        isFinished=true;
+                    }
+                    default:
+                        isFinished=true;
+
+                }
+
+            }catch (NumberFormatException e){
+                JOptionPane.showMessageDialog(null, "Introduzca un numero valido");
+            }
+
+        }while (!isFinished);
     }
 }
