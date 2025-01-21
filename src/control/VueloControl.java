@@ -39,11 +39,11 @@ public class VueloControl {
         try {
             String s = vueloDAO.search();;
             v.setCodVuelo(JOptionPane.showInputDialog(null,"Codigos de vuelo disponibles, cual quieres modificar? \n" + s));
-                Vuelo vu = new Vuelo();
+            Vuelo nuevoVuelo = new Vuelo();
 
-                vu.setCodVuelo(solicitarDato("Codigo de vuelo","ingresa el codigo del vuelo", Pattern.compile("^AEA[1-9][0-9]{4}$")));
+            nuevoVuelo.setCodVuelo(solicitarDato("Codigo de vuelo","ingresa el codigo del vuelo", Pattern.compile("^AEA[1-9][0-9]{4}$")));
 
-                vueloDAO.updateVuelo(vu,v);
+            vueloDAO.updateVuelo(nuevoVuelo,v);
 
         } catch (Exception e){
             System.out.println(e.getMessage());

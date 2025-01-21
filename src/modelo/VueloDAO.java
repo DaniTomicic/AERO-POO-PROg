@@ -26,7 +26,7 @@ public class VueloDAO {
             ps.executeUpdate();
     }
     public void updateVuelo(Vuelo nuevoVuelo,Vuelo vueloExistente) throws SQLException {
-        vueloSQL = "UPDATE vuelo SET cod_vuelo = ? WHERE cod_vuelo = ?";
+        vueloSQL = "UPDATE vuelos SET cod_vuelo = ? WHERE cod_vuelo = ?";
 
         PreparedStatement ps = con.prepareStatement(vueloSQL);
 
@@ -36,15 +36,15 @@ public class VueloDAO {
 
     }
     public String search() throws SQLException {
-        vueloSQL = "select cod_vuelo from vuelos";
-        StringBuilder s= new StringBuilder();
-        Statement st = con.createStatement();
+        vueloSQL = "SELECT cod_vuelo FROM vuelos";
+        StringBuilder s = new StringBuilder();
 
-        ResultSet rs = st.executeQuery(vueloSQL);
-
-        while (rs.next()) {
-            s.append(rs.getString("cod_vuelo")).append("\n");
+        try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery(vueloSQL)) {
+            while (rs.next()) {
+                s.append(rs.getString("cod_vuelo")).append("\n");
+            }
         }
+
         return s.toString();
     }
 
