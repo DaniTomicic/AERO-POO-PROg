@@ -50,4 +50,11 @@ public class Vuelo {
         this.porcedencia = porcedencia;
     }
 
+    @Override
+    public String toString() {
+        return "Codgo: " + codVuelo +
+                "- Fecha de salida: " + fechaSalida +
+                "- Destino: " + destino +
+                "- Origen: " + porcedencia;
+    }
 }

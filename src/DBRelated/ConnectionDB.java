@@ -22,4 +22,11 @@ public class ConnectionDB {
         }
     return con;
     }
+    public static void closeConnection(Connection con) {
+        try {
+            con.close();
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }

@@ -7,6 +7,7 @@ public class Pasajero {
     private String codVuelo;
     private Vuelo vuelo;
 
+    /*
     public Pasajero(String DNI, String nombre, String telefono, String codVuelo,Vuelo vuelo) {
         this.DNI = DNI;
         this.nombre = nombre;
@@ -14,8 +15,9 @@ public class Pasajero {
         this.codVuelo = codVuelo;
         this.vuelo = vuelo;
     }
+     */
 
-    public Pasajero(String DNI, String codVuelo, String telefono, String nombre) {
+    public Pasajero(String DNI, String nombre, String telefono,String codVuelo) {
         this.DNI = DNI;
         this.codVuelo = codVuelo;
         this.telefono = telefono;

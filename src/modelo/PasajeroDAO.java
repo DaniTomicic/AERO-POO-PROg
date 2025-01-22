@@ -2,32 +2,71 @@ package modelo;
 
 import DBRelated.ConnectionDB;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Objects;
 
+
 public class PasajeroDAO {
+    private Connection con;
+    private String pasajeroSQL;
+    public PasajeroDAO(Connection con) {
+        this.con = con;
+    }
 
-    public static void save(Pasajero pasajero) {
+    public PasajeroDAO() {
+
+    }
+
+    public void create(Pasajero pasajero) {
         try {
-            Connection con = ConnectionDB.getConnection();
+            this.con = ConnectionDB.getConnection();
+            pasajeroSQL="INSERT INTO pasajeros VALUES(?,?,?,?)";
 
-            PreparedStatement statement = Objects.requireNonNull(con).prepareStatement("INSERT INTO vuelos(pasajeros.cod_vuelo,pasajeros.dni,pasajeros.nombre,pasajeros.telefono) VALUES(?,?,?,?)");
+            PreparedStatement st = Objects.requireNonNull(con).prepareStatement(pasajeroSQL);
 
-            statement.setString(1, pasajero.getCodVuelo());
+            st.setString(1, pasajero.getDNI());
+            st.setString(2, pasajero.getNombre());
+            st.setString(3, pasajero.getTelefono());
+            st.setString(4, pasajero.getCodVuelo());
+            st.executeUpdate();
 
-            statement.setString(2, pasajero.getDNI());
-
-            statement.setString(3, pasajero.getNombre());
-
-            statement.setString(4, pasajero.getTelefono());
-
-            statement.executeUpdate();
-            System.out.println("Vuelo guardado exitosamente");
+            System.out.println("Pasajero guardado exitosamente");
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
+    public Pasajero read() throws SQLException {
+        pasajeroSQL = "SELECT * FROM pasajeros";
+
+        try {
+            this.con = ConnectionDB.getConnection();
+            Statement st = Objects.requireNonNull(con).createStatement();
+
+            ResultSet rs = st.executeQuery(pasajeroSQL);
+            if (rs.next()) {
+                return new Pasajero(rs.getString(1), rs.getString(2),rs.getString(3),rs.getString(4));
+            }
+        }catch (SQLException i) {
+            System.out.println(i.getMessage());
+        }
+        return null;
+    }
+    public void update(Pasajero pasajero){
+        pasajeroSQL = "UPDATE vuelos SET cod_vuelo = ? WHERE cod_vuelo = ?";
+
+        try {
+            this.con = ConnectionDB.getConnection();
+            PreparedStatement ps = con.prepareStatement(pasajeroSQL);
+
+            ps.setString(1, pasajero.getCodVuelo());
+            ps.executeUpdate();
+
+            System.out.println("Pasajero actualizado exitosamente");
+
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+    }
+    public void delete(Pasajero pasajero){}
 }

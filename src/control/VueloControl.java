@@ -5,10 +5,13 @@ import modelo.Vuelo;
 import modelo.VueloDAO;
 
 import javax.swing.*;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,11 +27,15 @@ public class VueloControl {
         this.vueloDAO = vueloDAO;
     }
 
+    public VueloControl() {
+
+    }
+
     public void insert() {
         try {
             v = solicitarValidarDatos();
 
-            vueloDAO.insertVuelo(v);
+            vueloDAO.create(v);
 
         } catch (Exception e){
             System.out.println(e.getMessage());
@@ -37,16 +44,59 @@ public class VueloControl {
 
     public void modify(){
         try {
-            String s = vueloDAO.search();;
-            v.setCodVuelo(JOptionPane.showInputDialog(null,"Codigos de vuelo disponibles, cual quieres modificar? \n" + s));
+            v = vueloDAO.read();
+            v.setCodVuelo(JOptionPane.showInputDialog(null,"Codigos de vuelo disponibles, cual quieres modificar? \n" + v.getCodVuelo()));
             Vuelo nuevoVuelo = new Vuelo();
 
             nuevoVuelo.setCodVuelo(solicitarDato("Codigo de vuelo","ingresa el codigo del vuelo", Pattern.compile("^AEA[1-9][0-9]{4}$")));
 
-            vueloDAO.updateVuelo(nuevoVuelo,v);
+            vueloDAO.update(nuevoVuelo,v);
 
         } catch (Exception e){
             System.out.println(e.getMessage());
+        }
+    }
+    public void delete(){
+        try {
+            v = vueloDAO.read();
+            Vuelo nuevoVuelo = new Vuelo();
+            nuevoVuelo.setCodVuelo(JOptionPane.showInputDialog(null,"Codigos de vuelo disponibles, cual quieres modificar? \n" + v.toString()));
+
+            vueloDAO.delete(nuevoVuelo);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void searchAll(){
+        try {
+
+            vueloDAO.searchVuelo(v);
+
+            JOptionPane.showMessageDialog(null, Objects.requireNonNullElse(v, "No hay vuelos"));
+
+        } catch (SQLIntegrityConstraintViolationException e){
+            System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void search(){
+        try {
+
+            vuelos.add(v = vueloDAO.read());
+
+            if (v !=null){
+                vuelos.forEach(v -> JOptionPane.showMessageDialog(null, v.getCodVuelo()));
+            }else {
+                JOptionPane.showMessageDialog(null,"No hay vuelos");
+            }
+
+        } catch (SQLIntegrityConstraintViolationException e){
+            System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -132,4 +182,8 @@ public class VueloControl {
     return fechaValida;
     }
 
+    @Override
+    public String toString() {
+        return v.getCodVuelo() + "-" + v.getFechaSalida() + "-" + v.getPorcedencia() + "-" + v.getDestino();
+    }
 }
