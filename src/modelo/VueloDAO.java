@@ -14,6 +14,10 @@ public class VueloDAO {
         this.con = con;
     }
 
+    public VueloDAO() {
+
+    }
+
     public void insertVuelo(Vuelo vuelo) throws SQLException {
         vueloSQL = "insert into vuelos values(?,?,?,?)";
 

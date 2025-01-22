@@ -14,14 +14,13 @@ import java.util.regex.Pattern;
 
 
 public class VueloControl {
-    private VueloDAO vueloDAO;
+    private static VueloDAO vueloDAO;
     private Vuelo v = new Vuelo();
     private ArrayList<Vuelo> vuelos = new ArrayList<>();
     private int contadorCABECERA = 1;
     private int contadorCOLA = 1;
 
-    public VueloControl(VueloDAO vueloDAO){
-        this.vueloDAO = vueloDAO;
+    public VueloControl(){
     }
 
     public void insert() {

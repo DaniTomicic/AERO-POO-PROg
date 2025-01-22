@@ -8,12 +8,22 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 public class PasajeroDAO {
+    private Connection con;
 
-    public static void save(Pasajero pasajero) {
+    public PasajeroDAO(Connection con) {
+        this.con = con;
+    }
+
+    public PasajeroDAO() {
+
+    }
+
+
+    public static void create(Pasajero pasajero) {
         try {
             Connection con = ConnectionDB.getConnection();
 
-            PreparedStatement statement = Objects.requireNonNull(con).prepareStatement("INSERT INTO vuelos(pasajeros.cod_vuelo,pasajeros.dni,pasajeros.nombre,pasajeros.telefono) VALUES(?,?,?,?)");
+            PreparedStatement statement = Objects.requireNonNull(con).prepareStatement("INSERT INTO pasajeros VALUES(?,?,?,?)");
 
             statement.setString(1, pasajero.getCodVuelo());
 

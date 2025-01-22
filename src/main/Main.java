@@ -23,8 +23,8 @@ public class Main {
             }else {
                 VueloDAO vueloDAO = new VueloDAO(con);
                 PasajeroDAO pasajeroDAO = new PasajeroDAO(con);
-                vueloControl = new VueloControl(vueloDAO);
-                pasajeroControl = new PasajeroControl(vueloDAO,pasajeroDAO);
+                vueloControl = new VueloControl();
+                pasajeroControl = new PasajeroControl();
             }
             mostrarMenu();
             ConnectionDB.closeConnection(con);
