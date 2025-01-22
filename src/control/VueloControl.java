@@ -5,6 +5,8 @@ import modelo.Vuelo;
 import modelo.VueloDAO;
 
 import javax.swing.*;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -24,11 +26,15 @@ public class VueloControl {
         this.vueloDAO = vueloDAO;
     }
 
+    public VueloControl() {
+
+    }
+
     public void insert() {
         try {
             v = solicitarValidarDatos();
 
-            vueloDAO.insertVuelo(v);
+            vueloDAO.create(v);
 
         } catch (Exception e){
             System.out.println(e.getMessage());
@@ -37,17 +43,46 @@ public class VueloControl {
 
     public void modify(){
         try {
-            String s = vueloDAO.search();;
+            String s = vueloDAO.read();
             v.setCodVuelo(JOptionPane.showInputDialog(null,"Codigos de vuelo disponibles, cual quieres modificar? \n" + s));
             Vuelo nuevoVuelo = new Vuelo();
 
             nuevoVuelo.setCodVuelo(solicitarDato("Codigo de vuelo","ingresa el codigo del vuelo", Pattern.compile("^AEA[1-9][0-9]{4}$")));
 
-            vueloDAO.updateVuelo(nuevoVuelo,v);
+            vueloDAO.update(nuevoVuelo,v);
 
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
+    }
+    public void delete(){
+        try {
+            String s = vueloDAO.read();
+
+            v.setCodVuelo(JOptionPane.showInputDialog(null,"Codigos de vuelo disponibles, cual quieres modificar? \n" + s));
+
+            vueloDAO.delete(v);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public String search(){
+        String s= "";
+        try {
+            s = vueloDAO.read();
+            v.setCodVuelo(JOptionPane.showInputDialog(null,"Que Vuelo quieres ver?" + s));
+
+           vueloDAO.searchVuelo(v);
+
+        JOptionPane.showMessageDialog(null,"Vuelo encontrado : \n" + v.getCodVuelo() + "-" +v.getPorcedencia());
+
+        } catch (SQLIntegrityConstraintViolationException e){
+            System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return s;
     }
 
     public Vuelo solicitarValidarDatos() throws ExcepcionDani {
@@ -132,4 +167,8 @@ public class VueloControl {
     return fechaValida;
     }
 
+    @Override
+    public String toString() {
+        return v.getCodVuelo() + "-" + v.getFechaSalida() + "-" + v.getPorcedencia() + "-" + v.getDestino();
+    }
 }
