@@ -1,14 +1,15 @@
 package modelo;
 
+import DBRelated.ConnectionDB;
+
 import java.sql.*;
 import java.time.LocalDate;
 
 
 public class VueloDAO {
-    private Connection con;
+    private Connection con =null;
     private String vueloSQL;
-    private Vuelo v
-            =new Vuelo();
+    private Vuelo v =new Vuelo();
 
     public VueloDAO(Connection con) {
         this.con = con;
@@ -25,6 +26,7 @@ public class VueloDAO {
         vueloSQL = "insert into vuelos values(?,?,?,?)";
 
             try{
+                this.con = ConnectionDB.getConnection();
                 PreparedStatement ps = con.prepareStatement(vueloSQL);
 
                 ps.setString(1, vuelo.getCodVuelo());
@@ -40,6 +42,28 @@ public class VueloDAO {
             }
 
     }
+    public Vuelo read() throws SQLException {
+        vueloSQL = "SELECT * FROM vuelos";
+        try {
+            this.con = ConnectionDB.getConnection();
+            Statement st = con.createStatement(); ResultSet rs = st.executeQuery(vueloSQL);
+                if (rs.next()) {
+                    return new Vuelo(
+                            rs.getString(1),
+                            LocalDate.parse(rs.getString(2)),
+                            rs.getString(3),
+                            rs.getString(4)
+                    );
+                }
+
+
+        }catch (SQLIntegrityConstraintViolationException e){
+            System.out.println("ERROR: se ha violado clave primaria: "+ e.getMessage());
+        }catch (SQLException e){
+            System.out.println("ERROR: "+ e.getMessage());
+        }
+        return null;
+    }
 
     public void update(Vuelo nuevoVuelo,Vuelo vueloExistente) throws SQLException {
         vueloSQL = "UPDATE vuelos SET cod_vuelo = ? WHERE cod_vuelo = ?";
@@ -51,21 +75,7 @@ public class VueloDAO {
         ps.executeUpdate();
 
     }
-    public Vuelo read() throws SQLException {
-        vueloSQL = "SELECT * FROM vuelos";
 
-        try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery(vueloSQL)) {
-            if (rs.next()) {
-                return new Vuelo(
-                        rs.getString(1),
-                        LocalDate.parse(rs.getString(2)),
-                        rs.getString(3),
-                        rs.getString(4)
-                );
-            }
-        }
-        return null;
-    }
 
     public void delete(Vuelo vuelo){
         vueloSQL = "DELETE FROM vuelos WHERE cod_vuelo = ?";

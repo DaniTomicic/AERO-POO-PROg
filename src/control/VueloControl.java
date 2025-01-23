@@ -5,6 +5,7 @@ import modelo.Vuelo;
 import modelo.VueloDAO;
 
 import javax.swing.*;
+import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -15,11 +16,9 @@ import java.util.regex.PatternSyntaxException;
 
 
 public class VueloControl {
-    private static VueloDAO vueloDAO;
+    private final VueloDAO vueloDAO=new VueloDAO();
     private Vuelo v = new Vuelo();
-    private ArrayList<Vuelo> vuelos = new ArrayList<>();
-    private int contadorCABECERA = 1;
-    private int contadorCOLA = 1;
+    private final ArrayList<Vuelo> vuelos = new ArrayList<>();
 
     public VueloControl(){
     }
@@ -61,9 +60,32 @@ public class VueloControl {
             System.out.println(e.getMessage());
         }
     }
+    public void delete() throws SQLException {
+        try {
+            vuelos.add(vueloDAO.read()) ;
 
-    public Vuelo solicitarValidarDatos() throws ExcepcionDani {
-        String codVuelo = generarCodvuelo();
+            String[] opciones = vuelos.stream().map(Vuelo::getCodVuelo).toArray(String[]::new);
+
+            String seleccion = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Seleccione el codigo del vuelo:",
+                    "Opciones",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    opciones,
+                    opciones[0]
+            );
+            v = vueloDAO.read(); //mira si existe
+
+            vueloDAO.delete(v);
+
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public Vuelo solicitarValidarDatos() throws ExcepcionDani, SQLException {
+        String codVuelo = generarCodVuelo();
         
         LocalDate fechaValida = solicitarDatoFecha("fecha","A que fecha es el vuelo? dd/mm/aaaa");
         
@@ -76,25 +98,39 @@ public class VueloControl {
 
 
 
-    private String generarCodvuelo() throws ExcepcionDani {
-        String codigoGenerado = "";
-        final String CABECERA = "AEA";
+    private String generarCodVuelo() throws ExcepcionDani, SQLException {
+        String codigoGenerado;
+        String CABECERA = "AEA";
+        int contadorCABECERA = 1; //
+        int contadorCOLA = 1;
 
-        try {
+        vuelos.add(v = vueloDAO.read());
+
+
+        boolean codigoExiste;
+        do {
             codigoGenerado = String.format("%s%d%04d", CABECERA, contadorCABECERA, contadorCOLA);
-
             contadorCOLA++;
 
             if (contadorCOLA > 9999) {
                 contadorCABECERA++;
-                contadorCOLA++;
+                contadorCOLA = 1;
             }
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null,"Error al generar el codigo del vuelo " + e.getMessage());
-        }
+
+            codigoExiste = false;
+            for (Vuelo vuelo : vuelos) {
+                if (vuelo.getCodVuelo().equals(codigoGenerado)) {
+                    codigoExiste = true;
+                    break;
+                }
+            }
+
+        } while (codigoExiste);
 
         return codigoGenerado;
     }
+
+
 
 
     public String solicitarDato(String dato, String mensaje, Pattern formato) throws ExcepcionDani {

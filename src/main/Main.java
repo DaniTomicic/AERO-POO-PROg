@@ -58,18 +58,24 @@ public class Main {
                 switch (opcion) {
                     case 1 -> vueloControl.insert();
                     case 2 -> vueloControl.modify();
+
                     case 3 -> vueloControl.delete();
+                    /*
                     case 4 -> vueloControl.searchAll();
                     case 5 -> vueloControl.search();
                     case 6 -> pasajeroControl.insert();
                     case 7 -> pasajeroControl.modify();
                     case 13 -> isFinished=true;
+                    */
+
                     default -> JOptionPane.showMessageDialog(null,"Selecione 'salir'");
 
                 }
 
             }catch (NumberFormatException e){
                 JOptionPane.showMessageDialog(null, "Introduzca un numero valido");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
 
         }while (!isFinished);
