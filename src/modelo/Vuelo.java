@@ -18,6 +18,9 @@ public class Vuelo {
 
     public Vuelo() {}
 
+    public Vuelo(String codVuelo) {
+    }
+
     public String getCodVuelo() {
         return codVuelo;
     }

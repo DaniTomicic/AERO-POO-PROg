@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 public class VueloControl {
@@ -27,7 +28,7 @@ public class VueloControl {
         try {
             v = solicitarValidarDatos();
 
-            vueloDAO.insertVuelo(v);
+            vueloDAO.create(v);
 
         } catch (Exception e){
             System.out.println(e.getMessage());
@@ -36,13 +37,25 @@ public class VueloControl {
 
     public void modify(){
         try {
-            String s = vueloDAO.search();;
-            v.setCodVuelo(JOptionPane.showInputDialog(null,"Codigos de vuelo disponibles, cual quieres modificar? \n" + s));
-            Vuelo nuevoVuelo = new Vuelo();
+            vuelos.add(vueloDAO.read()) ;
+
+        String[] opciones = vuelos.stream().map(Vuelo::getCodVuelo).toArray(String[]::new);
+
+            String seleccion = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Seleccione el codigo del vuelo:",
+                    "Opciones",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    opciones,
+                    opciones[0]
+            );
+
+            Vuelo nuevoVuelo = new Vuelo(seleccion);
 
             nuevoVuelo.setCodVuelo(solicitarDato("Codigo de vuelo","ingresa el codigo del vuelo", Pattern.compile("^AEA[1-9][0-9]{4}$")));
 
-            vueloDAO.updateVuelo(nuevoVuelo,v);
+            vueloDAO.update(nuevoVuelo,v);
 
         } catch (Exception e){
             System.out.println(e.getMessage());
@@ -74,7 +87,7 @@ public class VueloControl {
 
             if (contadorCOLA > 9999) {
                 contadorCABECERA++;
-                contadorCOLA = 1;
+                contadorCOLA++;
             }
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null,"Error al generar el codigo del vuelo " + e.getMessage());
@@ -99,8 +112,8 @@ public class VueloControl {
 
             }catch (NumberFormatException e){
                 JOptionPane.showMessageDialog(null, "No se aceptan numeros en este lugar");
-            }catch (MatchException e){
-                JOptionPane.showMessageDialog(null,"El valor de dato es incorrecto");
+            }catch (MatchException | PatternSyntaxException e){
+                JOptionPane.showMessageDialog(null,"El codigo de vuelo debe contener: "+ formato);
             }
         }while (!isValidDato);
         return dato;

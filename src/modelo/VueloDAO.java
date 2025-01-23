@@ -1,35 +1,47 @@
 package modelo;
 
-import DBRelated.ConnectionDB;
-
 import java.sql.*;
 import java.time.LocalDate;
 
 
 public class VueloDAO {
-    Connection con;
+    private Connection con;
     private String vueloSQL;
+    private Vuelo v
+            =new Vuelo();
 
     public VueloDAO(Connection con) {
         this.con = con;
+    }
+    public VueloDAO(Vuelo v) {
+        this.v=v;
     }
 
     public VueloDAO() {
 
     }
 
-    public void insertVuelo(Vuelo vuelo) throws SQLException {
+    public void create(Vuelo vuelo) {
         vueloSQL = "insert into vuelos values(?,?,?,?)";
 
-            PreparedStatement ps = con.prepareStatement(vueloSQL);
+            try{
+                PreparedStatement ps = con.prepareStatement(vueloSQL);
 
-            ps.setString(1, vuelo.getCodVuelo());
-            ps.setDate(2, convertir(vuelo.getFechaSalida()));
-            ps.setString(3, vuelo.getDestino());
-            ps.setString(4,vuelo.getPorcedencia());
-            ps.executeUpdate();
+                ps.setString(1, vuelo.getCodVuelo());
+                ps.setDate(2, convertir(vuelo.getFechaSalida()));
+                ps.setString(3, vuelo.getDestino());
+                ps.setString(4,vuelo.getPorcedencia());
+                ps.executeUpdate();
+
+            }catch (SQLIntegrityConstraintViolationException e){
+                System.out.println("ERROR: se ha violado clave primario: "+ e.getMessage());
+            }catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+
     }
-    public void updateVuelo(Vuelo nuevoVuelo,Vuelo vueloExistente) throws SQLException {
+
+    public void update(Vuelo nuevoVuelo,Vuelo vueloExistente) throws SQLException {
         vueloSQL = "UPDATE vuelos SET cod_vuelo = ? WHERE cod_vuelo = ?";
 
         PreparedStatement ps = con.prepareStatement(vueloSQL);
@@ -39,18 +51,35 @@ public class VueloDAO {
         ps.executeUpdate();
 
     }
-    public String search() throws SQLException {
-        vueloSQL = "SELECT cod_vuelo FROM vuelos";
-        StringBuilder s = new StringBuilder();
+    public Vuelo read() throws SQLException {
+        vueloSQL = "SELECT * FROM vuelos";
 
         try (Statement st = con.createStatement(); ResultSet rs = st.executeQuery(vueloSQL)) {
-            while (rs.next()) {
-                s.append(rs.getString("cod_vuelo")).append("\n");
+            if (rs.next()) {
+                return new Vuelo(
+                        rs.getString(1),
+                        LocalDate.parse(rs.getString(2)),
+                        rs.getString(3),
+                        rs.getString(4)
+                );
             }
         }
-
-        return s.toString();
+        return null;
     }
+
+    public void delete(Vuelo vuelo){
+        vueloSQL = "DELETE FROM vuelos WHERE cod_vuelo = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(vueloSQL);
+
+            ps.setString(1, vuelo.getCodVuelo());
+            ps.executeUpdate();
+
+        }catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
 
     public java.sql.Date convertir(LocalDate fechaSalida) {
         java.sql.Date fecha;
@@ -59,40 +88,4 @@ public class VueloDAO {
     }
 
 
-    public static Vuelo findByCodVuelo(String codVuelo, Vuelo vuelo) {
-        String vueloSQL = "SELECT * FROM vuelos WHERE vuelos.cod_vuelo = ?";
-
-        String pasajerosSQL = "SELECT * FROM pasajeros WHERE pasajeros.cod_vuelo = ?";
-
-        try {
-            Connection connection = ConnectionDB.getConnection();
-            PreparedStatement vueloStatement = connection.prepareStatement(vueloSQL);
-            vueloStatement.setString(1, codVuelo);
-            ResultSet vueloResultSet = vueloStatement.executeQuery();
-
-            if (vueloResultSet.next()) {
-                vuelo = new Vuelo();
-                vuelo.setCodVuelo(vueloResultSet.getString(1));
-                vuelo.setFechaSalida(LocalDate.parse(vueloResultSet.getString(2)));
-                vuelo.setDestino(vueloResultSet.getString(3));
-                vuelo.setPorcedencia(vueloResultSet.getString(4));
-
-                PreparedStatement pasajeroStatement = connection.prepareStatement(pasajerosSQL);
-                pasajeroStatement.setString(1, codVuelo);
-                ResultSet pasajeroResult = pasajeroStatement.executeQuery();
-                while (pasajeroResult.next()) {
-                    Pasajero p = new Pasajero();
-                    p.setCodVuelo(pasajeroResult.getString(1));
-                    p.setDNI(pasajeroResult.getString(2));
-                    p.setNombre(pasajeroResult.getString(3));
-                    p.setTelefono(pasajeroResult.getString(4));
-
-                }
-            }
-
-        }catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return vuelo;
-    }
 }

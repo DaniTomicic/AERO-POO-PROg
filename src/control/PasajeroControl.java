@@ -1,5 +1,6 @@
 package control;
 
+import com.sun.source.tree.PatternCaseLabelTree;
 import modelo.Pasajero;
 import modelo.PasajeroDAO;
 import modelo.VueloDAO;
@@ -37,17 +38,20 @@ public class PasajeroControl {
         return null;
     }
 
-    public static String datos(){
+    public static String datos(String dato, String mensaje, Pattern patron) {
         try {
 
         }catch (NullPointerException | NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Datos no acepados");
         }
+        return dato;
 
     }
 
     public static String validarDNI(String DNI, String mensaje, Pattern pattern) {
+        return DNI;
     }
+
 
 
 }
