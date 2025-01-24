@@ -24,6 +24,10 @@ public class Pasajero {
         this.nombre = nombre;
     }
 
+    public Pasajero(String codVuelo) {
+
+    }
+
     public Pasajero() {
 
     }
@@ -66,6 +70,14 @@ public class Pasajero {
 
     public void setVuelo(Vuelo vuelo) {
         this.vuelo = vuelo;
+    }
+
+    @Override
+    public String toString() {
+        return "DNI: " + getDNI() +
+                "\nNombre: " + getNombre() +
+                "\nTelefono: " + getTelefono() +
+                "\nCodVuelo: " + getCodVuelo();
     }
 
 

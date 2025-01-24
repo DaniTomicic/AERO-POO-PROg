@@ -18,7 +18,7 @@ import java.util.regex.PatternSyntaxException;
 public class VueloControl {
     private final VueloDAO vueloDAO=new VueloDAO();
     private Vuelo v = new Vuelo();
-    private final ArrayList<Vuelo> vuelos = new ArrayList<>();
+    private ArrayList<Vuelo> vuelos = new ArrayList<>();
 
     public VueloControl(){
     }
@@ -36,7 +36,7 @@ public class VueloControl {
 
     public void modify(){
         try {
-            vuelos.add(vueloDAO.read()) ;
+            vuelos = vueloDAO.read();
 
         String[] opciones = vuelos.stream().map(Vuelo::getCodVuelo).toArray(String[]::new);
 
@@ -62,7 +62,7 @@ public class VueloControl {
     }
     public void delete() throws SQLException {
         try {
-            vuelos.add(vueloDAO.read()) ;
+            vuelos = vueloDAO.read();
 
             String[] opciones = vuelos.stream().map(Vuelo::getCodVuelo).toArray(String[]::new);
 
@@ -75,9 +75,67 @@ public class VueloControl {
                     opciones,
                     opciones[0]
             );
-            v = vueloDAO.read(); //mira si existe
 
             vueloDAO.delete(v);
+
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+    public void searchAll()throws SQLException{
+        try {
+            vuelos = vueloDAO.read();
+
+            for (Vuelo vuelo : vuelos) {
+                JOptionPane.showMessageDialog(null,vuelo.toString());
+            }
+
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void searchByCode(){
+        try {
+            vuelos = vueloDAO.read();
+
+            String seleccion = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Seleccione el codigo del vuelo:",
+                    "Opciones",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    vuelos
+            );
+            v = vueloDAO.readByCode(seleccion);
+
+            JOptionPane.showMessageDialog(null,v.toString());
+
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void searchFlightByDestinarion(){
+        try {
+            vuelos = vueloDAO.read();
+            String[] destinos = vuelos.stream().map(Vuelo::getDestino).toArray(String[]::new);
+
+            String seleccion = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Seleccione el codigo del vuelo:",
+                    "Opciones",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    destinos,
+                    destinos[0]
+            );
+
+            String codVuelo = vueloDAO.readByDestination(seleccion);
+            v = vueloDAO.readByCode(codVuelo);
+
+            JOptionPane.showMessageDialog(null,v.toString());
 
         } catch (Exception e){
             System.out.println(e.getMessage());
@@ -104,7 +162,7 @@ public class VueloControl {
         int contadorCABECERA = 1; //
         int contadorCOLA = 1;
 
-        vuelos.add(v = vueloDAO.read());
+        vuelos = vueloDAO.read();
 
 
         boolean codigoExiste;

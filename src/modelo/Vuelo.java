@@ -56,8 +56,8 @@ public class Vuelo {
     @Override
     public String toString() {
         return "Codgo: " + codVuelo +
-                "- Fecha de salida: " + fechaSalida +
-                "- Destino: " + destino +
-                "- Origen: " + porcedencia;
+                "\n- Fecha de salida: " + fechaSalida +
+                "\n- Destino: " + destino +
+                "\n- Origen: " + porcedencia;
     }
 }
