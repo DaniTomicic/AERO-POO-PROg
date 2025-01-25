@@ -4,8 +4,6 @@ package main;
 import DBRelated.ConnectionDB;
 import control.PasajeroControl;
 import control.VueloControl;
-import modelo.PasajeroDAO;
-import modelo.VueloDAO;
 import javax.swing.*;
 import java.sql.*;
 
@@ -14,27 +12,22 @@ public class Main {
     private static VueloControl vueloControl;
     public static PasajeroControl pasajeroControl;
     public static void main(String[] args) {
-        try {
-            //Llama al metodo de conexion en el paquete
-            Connection con = ConnectionDB.getConnection();
-
+        try (Connection con = ConnectionDB.getConnection()){
             if (con == null) {
                 System.out.println("No connection");
-            }else {
-                VueloDAO vueloDAO = new VueloDAO(con);
-                PasajeroDAO pasajeroDAO = new PasajeroDAO(con);
-                vueloControl = new VueloControl();
-                pasajeroControl = new PasajeroControl();
+                System.exit(0);
             }
+            vueloControl = new VueloControl();
+            pasajeroControl = new PasajeroControl();
+
             mostrarMenu();
             ConnectionDB.closeConnection(con);
+
         }catch (SQLException e){
             System.out.println(e.getMessage());
         }catch (NullPointerException e){
             System.out.println("Acaba programa");
         }
-
-
 
     }
     public static void mostrarMenu() {
@@ -73,11 +66,10 @@ public class Main {
                     case 8 -> pasajeroControl.delete();
                     case 9 -> pasajeroControl.searchAll();
                     case 10 -> vueloControl.searchFlightByDestinarion();
+                    case 11 -> vueloControl.searchByCodeToPassanger();
+                    case 12 -> vueloControl.searchByCodeToOnePassanger();
                     case 13 -> isFinished=true;
-
-
                     default -> JOptionPane.showMessageDialog(null,"Selecione 'salir'");
-
                 }
 
             }catch (NumberFormatException e){

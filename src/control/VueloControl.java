@@ -1,6 +1,8 @@
 package control;
 
 import EXCP.ExcepcionDani;
+import modelo.Pasajero;
+import modelo.*;
 import modelo.Vuelo;
 import modelo.VueloDAO;
 
@@ -18,8 +20,10 @@ import java.util.regex.PatternSyntaxException;
 public class VueloControl {
     private final VueloDAO vueloDAO=new VueloDAO();
     private Vuelo v = new Vuelo();
+    private Pasajero p = new Pasajero();
     private ArrayList<Vuelo> vuelos = new ArrayList<>();
-
+    private ArrayList<Pasajero> pasajeros = new ArrayList<>();
+    private PasajeroDAO pasajeroDAO = new PasajeroDAO();
     public VueloControl(){
     }
 
@@ -52,7 +56,7 @@ public class VueloControl {
 
             Vuelo nuevoVuelo = new Vuelo(seleccion);
 
-            nuevoVuelo.setCodVuelo(solicitarDato("Codigo de vuelo","ingresa el codigo del vuelo", Pattern.compile("^AEA[1-9][0-9]{4}$")));
+            nuevoVuelo.setCodVuelo(solicitarDato("ingresa el codigo del vuelo", Pattern.compile("^AEA[1-9][0-9]{4}$")));
 
             vueloDAO.update(nuevoVuelo,v);
 
@@ -76,7 +80,7 @@ public class VueloControl {
                     opciones[0]
             );
 
-            vueloDAO.delete(v);
+            vueloDAO.delete(seleccion);
 
         } catch (Exception e){
             System.out.println(e.getMessage());
@@ -117,6 +121,67 @@ public class VueloControl {
         }
     }
 
+    public void searchByCodeToPassanger(){
+        try {
+            vuelos = vueloDAO.read();
+            String[] codVuelos = vuelos
+                    .stream().map
+                    (Vuelo::getCodVuelo)
+                    .toArray(String[]::new);
+
+            String seleccion = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Seleccione el codigo del vuelo:",
+                    "Opciones",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    codVuelos,
+                    codVuelos[0]
+            );
+
+            v = vueloDAO.readByCode(seleccion);
+
+            pasajeros = pasajeroDAO.readByFlight(v);
+
+            for (Pasajero p : pasajeros) {
+                JOptionPane.showMessageDialog(null,p.toString());
+            }
+
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void searchByCodeToOnePassanger(){
+        try {
+            vuelos = vueloDAO.read();
+            String[] codVuelos = vuelos
+                    .stream().map
+                            (Vuelo::getCodVuelo)
+                    .toArray(String[]::new);
+
+            String seleccion = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Seleccione el codigo del vuelo:",
+                    "Opciones",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    codVuelos,
+                    codVuelos[0]
+            );
+
+            v = vueloDAO.readByCode(seleccion);
+
+            p = pasajeroDAO.readByOneFlight(v);
+
+            String m = (p == null) ? "No hay vuelos disponibles" : p.toString();
+            JOptionPane.showMessageDialog(null,m);
+
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
     public void searchFlightByDestinarion(){
         try {
             vuelos = vueloDAO.read();
@@ -147,9 +212,9 @@ public class VueloControl {
         
         LocalDate fechaValida = solicitarDatoFecha("fecha","A que fecha es el vuelo? dd/mm/aaaa");
         
-        String origen = solicitarDato("Origen","Origen del vuelo", Pattern.compile("^[a-zA-ZñÑáÁéÉíÍóÓúÚ]$"));
+        String origen = solicitarDato("Origen del vuelo", Pattern.compile("^[a-zA-ZñÑáÁéÉíÍóÓúÚ]$"));
         
-        String destino = solicitarDato("Destino","Destino del vuelo?", Pattern.compile("^[a-zA-ZñÑáÁéÉíÍóÓúÚ]$"));
+        String destino = solicitarDato("Destino del vuelo?", Pattern.compile("^[a-zA-ZñÑáÁéÉíÍóÓúÚ]$"));
 
         return new Vuelo(codVuelo, fechaValida, origen, destino);
     }
@@ -191,27 +256,28 @@ public class VueloControl {
 
 
 
-    public String solicitarDato(String dato, String mensaje, Pattern formato) throws ExcepcionDani {
-        boolean isValidDato=false;
-        Matcher matcher = formato.matcher(dato);
+    public String solicitarDato(String mensaje, Pattern formato) throws ExcepcionDani {
+        String dato = null;
+        boolean isValidDato = false;
         do {
             try {
-                dato = JOptionPane.showInputDialog(null,mensaje);
-
-                if (dato.isEmpty()){
-                    JOptionPane.showMessageDialog(null,"Ingrese el valor de dato");
-                } else if (!matcher.matches()) {
-                    isValidDato = true;
+                dato = JOptionPane.showInputDialog(null, mensaje);
+                if (dato == null || dato.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "El valor no puede estar vacío.");
+                    continue;
                 }
-
-            }catch (NumberFormatException e){
-                JOptionPane.showMessageDialog(null, "No se aceptan numeros en este lugar");
-            }catch (MatchException | PatternSyntaxException e){
-                JOptionPane.showMessageDialog(null,"El codigo de vuelo debe contener: "+ formato);
+                if (!formato.matcher(dato).matches()) {
+                    JOptionPane.showMessageDialog(null, "El formato del dato es inválido. Intente nuevamente.");
+                    continue;
+                }
+                isValidDato = true;
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Ocurrió un error al validar el dato.");
             }
-        }while (!isValidDato);
+        } while (!isValidDato);
         return dato;
     }
+
     public LocalDate solicitarDatoFecha(String fecha,String mensaje) {
         boolean isValidFecha=false;
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
