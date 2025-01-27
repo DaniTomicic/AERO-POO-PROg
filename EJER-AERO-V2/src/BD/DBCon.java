@@ -1,12 +1,12 @@
-package DBRelated;
+package BD;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class ConnectionDB {
+public class DBCon {
 
-    public static Connection getConnection() throws SQLException{
+    public static Connection getConnection() {
         Connection con;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -20,14 +20,13 @@ public class ConnectionDB {
         } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e.getMessage());
         }
-    return con;
+        return con;
     }
-
     public static void closeConnection(Connection con) {
         try {
             con.close();
-        }catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

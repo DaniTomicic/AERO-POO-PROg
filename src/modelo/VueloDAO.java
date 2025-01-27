@@ -10,19 +10,9 @@ import java.util.ArrayList;
 public class VueloDAO {
     private Connection con =null;
     private String vueloSQL;
-    private ArrayList<Vuelo> vuelos;
-    private Vuelo v = new Vuelo();
+    private final Vuelo v = new Vuelo();
 
-    public VueloDAO(Connection con) {
-        this.con = con;
-    }
-    public VueloDAO(Vuelo v) {
-        this.v = v;
-    }
-
-    public VueloDAO() {
-
-    }
+    public VueloDAO() {}
 
     public void create(Vuelo vuelo) {
         String vueloSQL = "INSERT INTO vuelos VALUES (?, ?, ?, ?)";
@@ -67,6 +57,7 @@ public class VueloDAO {
 
         return vuelos;
     }
+
     public Vuelo readByCode(String codVuelo) {
         vueloSQL = "SELECT * FROM vuelos WHERE codVuelo = ?";
 
@@ -138,7 +129,6 @@ public class VueloDAO {
         return vuelos; // Devuelve la lista (puede estar vacía si hubo un error o no hay datos)
     }
 
-
     public void update(Vuelo nuevoVuelo,Vuelo vueloExistente) throws SQLException {
         vueloSQL = "UPDATE vuelos SET cod_vuelo = ? WHERE cod_vuelo = ?";
 
@@ -149,7 +139,6 @@ public class VueloDAO {
         ps.executeUpdate();
 
     }
-
 
     public void delete(String s) {
         try {
@@ -171,12 +160,9 @@ public class VueloDAO {
         }
     }
 
-
     public java.sql.Date convertir(LocalDate fechaSalida) {
         java.sql.Date fecha;
         fecha = java.sql.Date.valueOf(fechaSalida);
         return fecha;
     }
-
-
 }

@@ -24,6 +24,7 @@ public class VueloControl {
     private ArrayList<Vuelo> vuelos = new ArrayList<>();
     private ArrayList<Pasajero> pasajeros = new ArrayList<>();
     private PasajeroDAO pasajeroDAO = new PasajeroDAO();
+
     public VueloControl(){
     }
 

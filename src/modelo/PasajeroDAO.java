@@ -12,16 +12,12 @@ import java.util.ArrayList;
 public class PasajeroDAO {
     private Connection con;
     public String pasajeroSQL;
-    public Pasajero p = new Pasajero();
-    public PasajeroDAO(Connection con) {
-        this.con = con;
-    }
 
     public PasajeroDAO() {
 
     }
 
-
+    //CRUD -- se utiliza try with resources para el cierre de conexion
     public void create(Pasajero pasajero) {
         try {
             con = ConnectionDB.getConnection();
@@ -70,11 +66,10 @@ public class PasajeroDAO {
         return pasajeros;
     }
 
-    public void update(Pasajero nuevoPasajero, Pasajero p) throws SQLException {
+    public void update(Pasajero nuevoPasajero, Pasajero p) {
         pasajeroSQL = "UPDATE pasajeros SET cod_vuelo = ? WHERE cod_vuelo = ?";
-        try {
-            con = ConnectionDB.getConnection();
-            PreparedStatement ps = con.prepareStatement(pasajeroSQL);
+        try (Connection con = ConnectionDB.getConnection();
+            PreparedStatement ps = con.prepareStatement(pasajeroSQL)) {
 
             ps.setString(1, nuevoPasajero.getCodVuelo());
             ps.setString(2, p.getCodVuelo());
@@ -82,6 +77,8 @@ public class PasajeroDAO {
 
         } catch (SQLIntegrityConstraintViolationException e) {
             System.out.println("ERROR: se ha violado clave primario: " + e.getMessage());
+        }catch (SQLException e){
+            System.out.println("ERORR GENERAL :" + e.getMessage());
         }
     }
 
@@ -101,6 +98,9 @@ public class PasajeroDAO {
             throw new RuntimeException(e);
         }
     }
+
+
+    //metodos a parte de CRUD
     public ArrayList<Pasajero> readByFlight(Vuelo v)
     {
         ArrayList<Pasajero> pasajeros = new ArrayList<>();
@@ -137,8 +137,9 @@ public class PasajeroDAO {
             PreparedStatement ps = con.prepareStatement(pasajeroSQL);
             ps.setString(1, v.getCodVuelo());
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                return new Pasajero(rs.getString(1),
+            if (rs.next()) {
+                return new Pasajero(
+                        rs.getString(1),
                         rs.getString(2),
                         rs.getString(3),
                         rs.getString(4)
