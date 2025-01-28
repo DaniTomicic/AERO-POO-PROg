@@ -2,9 +2,8 @@ package Model;
 
 import BD.DBCon;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 
 public class PasajeroDAO {
     private String pasajeroSQL;
@@ -25,12 +24,34 @@ public class PasajeroDAO {
             System.out.println("create - ERROR :" + e.getMessage());
         }
     }
-    public Pasajero read(){
+    public ArrayList<Pasajero> read(){
         pasajeroSQL = "SELECT * FROM pasajeros";
+        ArrayList<Pasajero> pasajeros = new ArrayList<>();
         try(Connection con = DBCon.getConnection()){
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(pasajeroSQL);
+            while (rs.next()) {
+                Pasajero p = new Pasajero(
+                        rs.getString(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4)
+                );
+
+                pasajeros.add(p);
+            }
 
         }catch (SQLException e){
             System.out.println("read-ERROR :" + e.getMessage());
+        }
+        return pasajeros;
+    }
+    public void update(Pasajero p){
+        try(Connection con = DBCon.getConnection()){
+
+
+        } catch (SQLException e){
+            System.out.println("update - ERROR :" + e.getMessage());
         }
     }
 

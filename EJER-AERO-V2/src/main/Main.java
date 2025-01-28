@@ -1,37 +1,26 @@
 package main;
 
-import BD.DBCon;
 import Control.PasajeroControl;
 import Control.VueloControl;
 import Model.PasajeroDAO;
 import Model.VueloDAO;
 
 import javax.swing.*;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 public class Main {
     public static VueloControl vueloControl;
+    public static PasajeroDAO pasajeroDAO = new PasajeroDAO();
     public static VueloDAO vueloDAO = new VueloDAO();
     private static PasajeroControl pasajeroControl;
-    public static PasajeroDAO pasajeroDAO = new PasajeroDAO();
     public static void main(String[] args) {
-        try(Connection con = DBCon.getConnection()){
-            boolean mainFinished;
-            if (con != null){
-                vueloControl = new VueloControl(vueloDAO);
-                pasajeroControl = new PasajeroControl(pasajeroDAO);
-
-                do {
-
-                    mainFinished = showMenu();
-
-                }while (!mainFinished);
-            }else {
-                JOptionPane.showMessageDialog(null,"Error en obtener conexion");
-                throw new RuntimeException();
-            }
-        } catch (SQLException e){
+        boolean mainFinished;
+        try {
+            vueloControl = new VueloControl(vueloDAO);
+            pasajeroControl = new PasajeroControl(pasajeroDAO);
+            do {
+                mainFinished = showMenu();
+            }while (!mainFinished);
+        } catch (Exception e){
             System.out.println("ERROR " + e.getMessage());
         }
     }
@@ -44,8 +33,7 @@ public class Main {
                 "7. Modificar Pasajero","8. Eliminar Pasajeros",
                 "9.Mostrar Pasajeros","10. Vuelos por Destino",
                 "11. Pasajeros por vuelo","12. Vuelos de un Pasajero",
-                "13. Vuelos por Fecha",
-                "14. Salir"
+                "13. Vuelos por Fecha","14. Salir"
         };
 
         do {
@@ -59,11 +47,14 @@ public class Main {
                         optMenu,
                         optMenu[0]
                 );
-                int option = Integer.parseInt(selection.split("\\.")[0]);
+                int option =
+                        Integer.parseInt(selection.split("\\.")[0]);
 
                 switch (option) {
-                    case 1 -> vueloControl;
-                    case 2 ->;
+                    case 1 -> vueloControl.insert();
+
+                    case 2 -> vueloControl.update();
+                    /*
                     case 3 ->;
                     case 4 ->;
                     case 5 ->;
@@ -75,6 +66,7 @@ public class Main {
                     case 11->;
                     case 12-> ;
                     case 13->;
+                    */
                     case 14-> showMenuFinished=true;
                 }
 

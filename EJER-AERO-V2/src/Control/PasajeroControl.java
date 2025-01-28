@@ -34,13 +34,17 @@ public class PasajeroControl {
         return new Pasajero(dni,name,cellphone,codVuelo);
     }
     private String searchAndAssignCodVuelo(){
-        String option = ""; String[] codVuelos = pasajeroDAO.search().stream.
         boolean codVueloFinished = false;
+        String option;
+        String[] codVuelos = pasajeroDAO.read().stream()
+                .map(Pasajero::getCodVuelo)
+                .filter(codVuelo ->codVuelo.contains("A"))
+                .toArray(String[]::new);
         do {
             option = (String) JOptionPane.showInputDialog(
                     null,
-                    "",
-                    "",
+                    "Seleccione el codigo del vuelo",
+                    "Opciones",
                     JOptionPane.PLAIN_MESSAGE,
                     null,
                     codVuelos,

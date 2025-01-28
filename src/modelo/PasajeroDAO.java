@@ -56,6 +56,9 @@ public class PasajeroDAO {
                 );
 
                 pasajeros.add(p);
+                //me ineteresa que devuelva arraylist para luego
+                //adaptar los datos en otros metodos como Control o
+                // Main
             }
         } catch (SQLIntegrityConstraintViolationException e) {
             System.out.println("ERROR: se ha violado clave primaria: " + e.getMessage());

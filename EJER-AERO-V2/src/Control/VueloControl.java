@@ -5,9 +5,9 @@ import Model.VueloDAO;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,20 +24,43 @@ public class VueloControl {
             Vuelo v = this.DataValidationApplication();
             this.vueloDAO.create(v);
             JOptionPane.showMessageDialog((Component)null, "Vuelo insertado correctamente");
-        }catch (SQLIntegrityConstraintViolationException e){
-            JOptionPane.showMessageDialog((Component)null, "Error al insertar vuelo, no puede haber dos vuelos con el mismo código.");
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+    public void update(){
+        try {
+            Vuelo vuelo = new Vuelo();
+            ArrayList<Vuelo> disponibles = vueloDAO.read();
+            String[] dispo = disponibles.stream()
+                    .map(v -> v.getCodVuelo() +" DESTINO: "+ v.getDestino())
+                    .filter(cod -> cod.contains("A")).toArray(String[]::new);
+
+            String opcion = (String) JOptionPane.showInputDialog(null,
+                    "Vuelos Disponibles:",
+                    "Seleccione",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    dispo,
+                    dispo[0]
+            );
+            opcion = opcion.substring(0,6).trim();
+
+            vueloDAO.update(vuelo);
+
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
     }
+
     private Vuelo DataValidationApplication(){
         String generatedCodVuelo = generateCodVuelo();
 
-        LocalDate date = this.dateConversion(this.dataValidationApplication("Fecha de salida", "Teclea la fecha de salida del vuelo", "^[0-9]{2}/[0-9]{2}/[0-9]{4}$"));
+        LocalDate date = this.dateConversion(this.dataValidationApplication("Fecha de salida", "Teclea la fecha de salida del vuelo dd/mm/aaaa", "^[0-9]{2}/[0-9]{2}/[0-9]{4}$"));
 
-        String procedencia = this.dataValidationApplication("Procedencia","Teclea la procedenca del vuelo","^[A-Z][a-z]+([ -][A-Z][a-z]+)*$");
+        String procedencia = this.dataValidationApplication("Procedencia","Teclea la procedenca del vuelo","^[A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+([ -][A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+)*$");
 
-        String origin = this.dataValidationApplication("Origen","Teclea el origen del vuelo","^[A-Z][a-z]+([ -][A-Z][a-z]+)*$");
+        String origin = this.dataValidationApplication("Origen","Teclea el origen del vuelo","^[A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+([ -][A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+)*$");
 
         return new Vuelo(generatedCodVuelo,date,procedencia,origin);
 
@@ -49,8 +72,7 @@ public class VueloControl {
         String CABECERA = "AEA";
         int contadorCABECERA = 1; //
         int contadorCOLA = 1;
-
-        vuelos = vueloDAO.read();
+        ArrayList<Vuelo> vuelos = vueloDAO.read();
 
 
         boolean codigoExiste;
@@ -98,7 +120,7 @@ public class VueloControl {
         }while (!funcFinished);
         return var;
     }
-    public LocalDate dateConversion(String date){
+    private LocalDate dateConversion(String date){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return LocalDate.parse(date,dtf);
     }
