@@ -54,19 +54,29 @@ public class Main {
                     case 1 -> vueloControl.insert();
 
                     case 2 -> vueloControl.update();
-                    /*
-                    case 3 ->;
-                    case 4 ->;
-                    case 5 ->;
-                    case 6 ->;
-                    case 7 ->;
-                    case 8->;
-                    case 9->;
-                    case 10->;
-                    case 11->;
-                    case 12-> ;
-                    case 13->;
-                    */
+
+                    case 3 -> vueloControl.delete();
+
+                    case 4 -> vueloControl.search();
+
+                    case 5 -> vueloControl.searchByCodVuelo();
+
+                    case 6 -> pasajeroControl.insert();
+
+                    case 7 -> pasajeroControl.update();
+
+                    case 8-> pasajeroControl.delete();
+
+                    case 9-> pasajeroControl.search();
+
+                    case 10-> vueloControl.flightByDestinarion();
+
+                    //case 11-> ;
+
+                    case 12-> pasajeroControl.searchFlightOfPassanger();
+
+
+                    case 13-> vueloControl.searchByDate();
                     case 14-> showMenuFinished=true;
                 }
 

@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class VueloControl {
     private final VueloDAO vueloDAO;
-
+    private Vuelo v=new Vuelo();
     public VueloControl(VueloDAO vueloDAO) {
 
         this.vueloDAO = vueloDAO;
@@ -30,10 +30,9 @@ public class VueloControl {
     }
     public void update(){
         try {
-            Vuelo vuelo = new Vuelo();
             ArrayList<Vuelo> disponibles = vueloDAO.read();
             String[] dispo = disponibles.stream()
-                    .map(v -> v.getCodVuelo() +" DESTINO: "+ v.getDestino())
+                    .map(Vuelo::getCodVuelo)
                     .filter(cod -> cod.contains("A")).toArray(String[]::new);
 
             String opcion = (String) JOptionPane.showInputDialog(null,
@@ -44,13 +43,109 @@ public class VueloControl {
                     dispo,
                     dispo[0]
             );
-            opcion = opcion.substring(0,6).trim();
 
-            vueloDAO.update(vuelo);
+            v.setCodVuelo(opcion);
+
+            vueloDAO.update(v);
 
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
+    }
+    public void delete(){
+        try {
+            ArrayList<Vuelo> disponibles = vueloDAO.read();
+            String[] dispo = disponibles.stream()
+                    .map(Vuelo::getCodVuelo)
+                    .filter(cod -> cod.contains("A")).toArray(String[]::new);
+
+            String opcion = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Selecciona el vuelo que quieras borrar",
+                    "Opciones",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    dispo,
+                    dispo[0]
+            );
+            v.setCodVuelo(opcion);
+
+            vueloDAO.delete(v);
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+    public void search(){
+        try {
+            ArrayList<Vuelo> disponibles = vueloDAO.read();
+
+            for (Vuelo v : disponibles) {
+                JOptionPane.showMessageDialog(null,v.toString());
+            }
+
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+    public void searchByCodVuelo(){
+        ArrayList<Vuelo> disponibles = vueloDAO.read();
+        String[] codVuelo = disponibles.stream().map(Vuelo::getCodVuelo).toArray(String[]::new);
+        String opcion = (String) JOptionPane.showInputDialog(
+                null,
+                "Codigos de vuelo disponibles",
+                "Elije uno",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                codVuelo,
+                codVuelo[0]
+        );
+
+        Vuelo vuelo = vueloDAO.search(opcion);
+
+        JOptionPane.showMessageDialog(null,vuelo.toString());
+
+
+    }
+    public void flightByDestinarion(){
+        ArrayList<Vuelo> disponibles = vueloDAO.read();
+        String[] dispo = disponibles.stream()
+                .map(Vuelo::getDestino)
+                .toArray(String[]::new);
+
+        String opcion = (String) JOptionPane.showInputDialog(
+                null,
+                "Selecciona el destino",
+                "Opciones",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                dispo,
+                dispo[0]
+        );
+        ArrayList<Vuelo> vuelos = vueloDAO.searchByDestination(opcion);
+
+        for(Vuelo v : vuelos){
+            JOptionPane.showMessageDialog(null,v.toString());
+        }
+    }
+    public void searchByDate(){
+        ArrayList<Vuelo> disponibles = vueloDAO.read();
+        String[] dispo = disponibles.stream()
+                .map(Vuelo::getFechaSalida)
+                .toArray(String[]::new);
+        String opcion = (String) JOptionPane.showInputDialog(
+                null,
+                "Seleccione la fecha de salida",
+                "Opciones",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                dispo,
+                dispo[0]
+        );
+        LocalDate fechaSalida = LocalDate.parse(opcion);
+
+        ArrayList<Vuelo> porFechas = vueloDAO.searchByDate(fechaSalida);
     }
 
     private Vuelo DataValidationApplication(){

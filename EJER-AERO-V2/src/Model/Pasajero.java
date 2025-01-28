@@ -20,6 +20,10 @@ public class Pasajero {
         this.telefono = telefono;
     }
 
+    public Pasajero() {
+
+    }
+
     public String getDni() {
         return dni;
     }
