@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class VueloControl {
     private final VueloDAO vueloDAO;
-    private Vuelo v=new Vuelo();
+    private Vuelo v =new Vuelo();
     public VueloControl(VueloDAO vueloDAO) {
 
         this.vueloDAO = vueloDAO;
@@ -21,59 +21,40 @@ public class VueloControl {
 
     public void insert(){
         try {
-            Vuelo v = this.DataValidationApplication();
+            v = this.DataValidationApplication();
             this.vueloDAO.create(v);
             JOptionPane.showMessageDialog((Component)null, "Vuelo insertado correctamente");
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
     }
+
     public void update(){
-        try {
-            ArrayList<Vuelo> disponibles = vueloDAO.read();
-            String[] dispo = disponibles.stream()
-                    .map(Vuelo::getCodVuelo)
-                    .filter(cod -> cod.contains("A")).toArray(String[]::new);
+        boolean isFinishedUpdate=false;
+        do {
+            try {
+                String codVuelo = this.dataValidationApplication("Codigo de vuelo","Teclea el codigo de vuelo 'AEA...' hasta 5 numeros","^AEA[0-9][0-9]{4}$");
 
-            String opcion = (String) JOptionPane.showInputDialog(null,
-                    "Vuelos Disponibles:",
-                    "Seleccione",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    dispo,
-                    dispo[0]
-            );
+                v = vueloDAO.search(codVuelo);
+                if (v == null){
+                    JOptionPane.showMessageDialog((Component)null, "Vuelo no encontrado");
+                }else {
+                    v = this.DataValidationApplication();
+                    vueloDAO.update(v);
+                    isFinishedUpdate=true;
+                }
 
-            v.setCodVuelo(opcion);
-
-            disponibles.clear(); //limpio para enviar luego solo un vuelo
-            disponibles.add(v);
-
-            disponibles = vueloDAO.read();
-
-            vueloDAO.update(disponibles.getFirst());
-
-        }catch (Exception e){
-            System.out.println(e.getMessage());
-        }
+            }catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+        }while (!isFinishedUpdate);
     }
+
     public void delete(){
         try {
-            ArrayList<Vuelo> disponibles = vueloDAO.read();
-            String[] dispo = disponibles.stream()
-                    .map(Vuelo::getCodVuelo)
-                    .filter(cod -> cod.contains("A")).toArray(String[]::new);
+            String codVuelo = this.dataValidationApplication("Codigo de vuelo","Teclea el codigo del vuelo","^AEA[0-9][0-9]{4}$");
 
-            String opcion = (String) JOptionPane.showInputDialog(
-                    null,
-                    "Selecciona el vuelo que quieras borrar",
-                    "Opciones",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    dispo,
-                    dispo[0]
-            );
-            v.setCodVuelo(opcion);
+            v.setCodVuelo(codVuelo);
 
             vueloDAO.delete(v);
 
@@ -95,40 +76,18 @@ public class VueloControl {
         }
     }
     public void searchByCodVuelo(){
-        ArrayList<Vuelo> disponibles = vueloDAO.read();
-        String[] codVuelo = disponibles.stream().map(Vuelo::getCodVuelo).toArray(String[]::new);
-        String opcion = (String) JOptionPane.showInputDialog(
-                null,
-                "Codigos de vuelo disponibles",
-                "Elije uno",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                codVuelo,
-                codVuelo[0]
-        );
+        String codVuelo = this.dataValidationApplication("Codigo de vuelo","Teclea el codigo del vuelo","^AEA[0-9][0-9]{4}$");
 
-        Vuelo vuelo = vueloDAO.search(opcion);
+        v = vueloDAO.search(codVuelo);
 
-        JOptionPane.showMessageDialog(null,vuelo.toString());
+        JOptionPane.showMessageDialog(null,v.toString());
 
 
     }
     public void flightByDestinarion(){
-        ArrayList<Vuelo> disponibles = vueloDAO.read();
-        String[] dispo = disponibles.stream()
-                .map(Vuelo::getDestino)
-                .toArray(String[]::new);
+        String destino = this.dataValidationApplication("Destino","Teclea el destino del vuelo","^[A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+([ -][A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+)*$");
 
-        String opcion = (String) JOptionPane.showInputDialog(
-                null,
-                "Selecciona el destino",
-                "Opciones",
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                dispo,
-                dispo[0]
-        );
-        ArrayList<Vuelo> vuelos = vueloDAO.searchByDestination(opcion);
+        ArrayList<Vuelo> vuelos = vueloDAO.searchByDestination(destino);
 
         for(Vuelo v : vuelos){
             JOptionPane.showMessageDialog(null,v.toString());
@@ -154,7 +113,8 @@ public class VueloControl {
     }
 
     private Vuelo DataValidationApplication(){
-        String generatedCodVuelo = generateCodVuelo();
+
+        String generatedCodVuelo = this.dataValidationApplication("Codigo de vuelo","Teclea el codigo de vuelo 'AEA...' hasta 5 numeros","^AEA[0-9][0-9]{4}$");
 
         LocalDate date = this.dateConversion(this.dataValidationApplication("Fecha de salida", "Teclea la fecha de salida del vuelo dd/mm/aaaa", "^[0-9]{2}/[0-9]{2}/[0-9]{4}$"));
 
@@ -164,38 +124,6 @@ public class VueloControl {
 
         return new Vuelo(generatedCodVuelo,date,procedencia,origin);
 
-    }
-
-
-    private String generateCodVuelo(){
-        String codigoGenerado;
-        String CABECERA = "AEA";
-        int contadorCABECERA = 1; //
-        int contadorCOLA = 1;
-        ArrayList<Vuelo> vuelos = vueloDAO.read();
-
-
-        boolean codigoExiste;
-        do {
-            codigoGenerado = String.format("%s%d%04d", CABECERA, contadorCABECERA, contadorCOLA);
-            contadorCOLA++;
-
-            if (contadorCOLA > 9999) {
-                contadorCABECERA++;
-                contadorCOLA = 1;
-            }
-
-            codigoExiste = false;
-            for (Vuelo vuelo : vuelos) {
-                if (vuelo.getCodVuelo().equals(codigoGenerado)) {
-                    codigoExiste = true;
-                    break;
-                }
-            }
-
-        } while (codigoExiste);
-
-        return codigoGenerado;
     }
     private String dataValidationApplication(String data,String msj,String pattern){
         String var="";

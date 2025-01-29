@@ -82,6 +82,7 @@ public class VueloDAO {
                 ps2.setString(1, vuelo.getCodVuelo());
                 ps2.executeUpdate();
             }
+
         } catch (SQLIntegrityConstraintViolationException e) {
             System.out.println("ERROR: Restricción de clave foránea o primaria: " + e.getMessage());
         } catch (SQLException e) {
@@ -153,6 +154,19 @@ public class VueloDAO {
             System.out.println("searchByDate - ERROR: " +e.getMessage());
         }
         return vuelos;
+    }
+    public void setVuelosPasajeros(String codVuelo, String dni) {
+        vueloSQL="INSERT INTO vuelos_pasajeros VALUES(?,?)";
+        try(Connection con = DBCon.getConnection()){
+            PreparedStatement ps = con.prepareStatement(vueloSQL);
+
+            ps.setString(1, codVuelo);
+            ps.setString(2, dni);
+            ps.executeUpdate();
+
+        }catch (SQLException e){
+            System.out.println("setVuelosPasajeros - ERROR: " +e.getMessage());
+        }
     }
 
     public java.sql.Date convertir(LocalDate fechaSalida) {
