@@ -26,7 +26,8 @@ public class Main {
     }
     private static boolean showMenu() {
         boolean showMenuFinished = false;
-        String[] optMenu =               {
+
+        String[] optMenu = {
                 "1. Crear Vuelo","2. Modificar Vuelo",
                 "3. Eliminar Vuelo","4. Mostrar todos los Vuelos",
                 "5. Mostrar Vuelo por codigo","6. Crear Pasajero",
@@ -35,7 +36,6 @@ public class Main {
                 "11. Pasajeros por vuelo","12. Vuelos de un Pasajero",
                 "13. Vuelos por Fecha","14. Salir"
         };
-
         do {
             try {
                 String selection = (String) JOptionPane.showInputDialog(
@@ -52,30 +52,17 @@ public class Main {
 
                 switch (option) {
                     case 1 -> vueloControl.insert();
-
                     case 2 -> vueloControl.update();
-
                     case 3 -> vueloControl.delete();
-
                     case 4 -> vueloControl.search();
-
                     case 5 -> vueloControl.searchByCodVuelo();
-
                     case 6 -> pasajeroControl.insert();
-
                     case 7 -> pasajeroControl.update();
-
                     case 8-> pasajeroControl.delete();
-
                     case 9-> pasajeroControl.search();
-
                     case 10-> vueloControl.flightByDestinarion();
-
-                    //case 11-> ;
-
+                    //case 11->
                     case 12-> pasajeroControl.searchFlightOfPassanger();
-
-
                     case 13-> vueloControl.searchByDate();
                     case 14-> showMenuFinished=true;
                 }
@@ -84,7 +71,6 @@ public class Main {
                 JOptionPane.showMessageDialog(null,"Seleccione un numero valido");
             }
         }while (!showMenuFinished);
-
         return showMenuFinished;
     }
 }

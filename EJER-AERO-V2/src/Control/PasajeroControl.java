@@ -3,9 +3,7 @@ package Control;
 import Model.Pasajero;
 import Model.PasajeroDAO;
 import Model.Vuelo;
-import Model.VueloDAO;
 
-import javax.lang.model.element.NestingKind;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -24,8 +22,13 @@ public class PasajeroControl {
 
     public void insert(){
         try {
-            p = this.dataValidationApplication();
-            this.pasajeroDAO.create(p);
+            p = pasajeroDAO.search(this.dataValidation("DNI","teclea el DNI del pasajero", "^[1-9][0-9]{7}[A-Z]$"));
+
+            if (p == null){
+                Pasajero pas = this.dataValidationApplication();
+                this.pasajeroDAO.create(pas);
+            }
+            update();
 
             JOptionPane.showMessageDialog((Component) null,"Pasajero insertado correctamente");
         } catch (Exception e){
@@ -34,22 +37,12 @@ public class PasajeroControl {
     }
     public void update(){
         try{
-            ArrayList<Pasajero> pasajeros = pasajeroDAO.read();
-            String[] DNIs = pasajeros.stream()
-                    .map(Pasajero::getDni)
-                    .toArray(String[]::new);
-            String opcion = (String) JOptionPane.showInputDialog(null,
-                    "DNIs disponibles",
-                    "Elije",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    DNIs,
-                    DNIs[0]
-            );
-            p = pasajeroDAO.search(opcion);
+            p = pasajeroDAO.search(this.dataValidation("DNI","teclea el DNI del pasajero", "^[1-9][0-9]{7}[A-Z]$"));
 
             JOptionPane.showMessageDialog(null,p.toString());
-            String[] modificaciones ={"DNI","Nombre","Telefono","Codigo de vuelo"};
+
+            String[] modificaciones ={"Nombre","Telefono","Codigo de vuelo"};
+
             String eleccion = (String) JOptionPane.showInputDialog(null,"Elija que quiere modificar",
                     "Opciones",
                     JOptionPane.PLAIN_MESSAGE,
@@ -57,6 +50,7 @@ public class PasajeroControl {
                     modificaciones,
                     modificaciones[0]
             );
+
             p = this.dataValidationApplication();
 
             pasajeroDAO.update(p);
@@ -67,19 +61,7 @@ public class PasajeroControl {
     }
     public void delete(){
         try {
-            ArrayList<Pasajero> pasajeros = pasajeroDAO.read();
-            String[] personasBorrar = pasajeros.stream()
-                    .map(Pasajero::getDni)
-                    .toArray(String[]::new);
-            String eleccion = (String) JOptionPane.showInputDialog(null,"Elija que quiere modificar",
-                    "Opciones",
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    personasBorrar,
-                    personasBorrar[0]
-            );
-
-            p = pasajeroDAO.search(eleccion);
+            p = pasajeroDAO.search(this.dataValidation("DNI","teclea el DNI del pasajero", "^[1-9][0-9]{7}[A-Z]$"));
 
             pasajeroDAO.delete(p);
 
@@ -102,7 +84,6 @@ public class PasajeroControl {
     }
 
     private Pasajero dataValidationApplication(){
-        String dni = this.dataValidation("DNI","teclea el DNI del pasajero", "^[1-9][0-9]{7}[A-Z]$");
 
         String name =this.dataValidation("Name","teclea el nombre del pasajero","^[A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+([ -][A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+)*$");
 
@@ -110,8 +91,9 @@ public class PasajeroControl {
 
         String codVuelo = this.searchAndAssignCodVuelo();
 
-        return new Pasajero(dni,name,cellphone,codVuelo);
+        return new Pasajero(p.getDni(),name,cellphone,codVuelo);
     }
+
     private String searchAndAssignCodVuelo(){
         boolean codVueloFinished = false;
 

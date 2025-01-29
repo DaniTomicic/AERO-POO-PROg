@@ -1,9 +1,7 @@
 package Model;
 
 import BD.DBCon;
-import Control.VueloControl;
 
-import java.net.http.HttpConnectTimeoutException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -57,7 +55,6 @@ public class VueloDAO {
 
         try (Connection con = DBCon.getConnection()) {
             PreparedStatement ps = con.prepareStatement(vueloSQL);
-
 
             ps.setDate(1, convertir(nuevoVuelo.getFechaSalida()));
             ps.setString(2, nuevoVuelo.getDestino());

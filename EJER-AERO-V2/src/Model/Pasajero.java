@@ -1,17 +1,21 @@
 package Model;
 
+import java.util.ArrayList;
+
 public class Pasajero {
 
     private String dni;
     private String nombre;
     private String telefono;
     private String codVuelo;
+    private ArrayList<Vuelo> vuelos = new ArrayList();
 
     public Pasajero(String dni, String nombre, String telefono, String codVuelo) {
         this.dni = dni;
         this.nombre = nombre;
         this.telefono = telefono;
         this.codVuelo = codVuelo;
+        this.vuelos = vuelos;
     }
 
     public Pasajero(String dni, String nombre, String telefono) {
@@ -54,6 +58,21 @@ public class Pasajero {
 
     public void setCodVuelo(String codVuelo) {
         this.codVuelo = codVuelo;
+    }
+
+    public ArrayList<Vuelo> getVuelos() {
+        return vuelos;
+    }
+
+    public void setVuelos(ArrayList<Vuelo> vuelos) {
+        this.vuelos = vuelos;
+    }
+
+    public void addVuelo(Vuelo vuelo) {
+        vuelos.add(vuelo);
+    }
+    public Vuelo getVuelo(int i) {
+        return vuelos.get(i);
     }
 
     @Override

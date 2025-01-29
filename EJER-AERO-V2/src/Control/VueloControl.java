@@ -46,7 +46,12 @@ public class VueloControl {
 
             v.setCodVuelo(opcion);
 
-            vueloDAO.update(v);
+            disponibles.clear(); //limpio para enviar luego solo un vuelo
+            disponibles.add(v);
+
+            disponibles = vueloDAO.read();
+
+            vueloDAO.update(disponibles.getFirst());
 
         }catch (Exception e){
             System.out.println(e.getMessage());

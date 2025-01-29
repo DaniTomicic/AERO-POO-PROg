@@ -20,6 +20,13 @@ public class PasajeroDAO {
             ps.setString(4, p.getCodVuelo());
             ps.executeUpdate();
 
+            pasajeroSQL="INSERT INTO vuelos_pasajeros VALUES(?,?)";
+
+            PreparedStatement ps2 = con.prepareStatement(pasajeroSQL);
+            ps2.setString(1, p.getCodVuelo());
+            ps2.setString(2, p.getDni());
+            ps.executeUpdate();
+
         } catch (SQLException e){
             System.out.println("create - ERROR :" + e.getMessage());
         }
@@ -68,7 +75,7 @@ public class PasajeroDAO {
         pasajeroSQL = "DELETE FROM pasajeros WHERE dni = ?";
         try(Connection con = DBCon.getConnection()){
             PreparedStatement ps = con.prepareStatement(pasajeroSQL);
-            ps.setString(1, dni);
+            ps.setString(1,dni);
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
                 return new Pasajero(
@@ -110,7 +117,6 @@ public class PasajeroDAO {
         } catch (SQLException e) {
             System.out.println("search - ERROR: " + e.getMessage());
         }
-
         return vuelos;
     }
 
