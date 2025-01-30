@@ -21,7 +21,7 @@ public class VueloControl {
 
     public void insert(){
         try {
-            v = this.DataValidationApplication();
+            v = this.DataValidationApplication(v.getCodVuelo());
             this.vueloDAO.create(v);
             JOptionPane.showMessageDialog((Component)null, "Vuelo insertado correctamente");
         } catch (Exception e){
@@ -30,24 +30,21 @@ public class VueloControl {
     }
 
     public void update(){
-        boolean isFinishedUpdate=false;
-        do {
-            try {
+        try {
                 String codVuelo = this.dataValidationApplication("Codigo de vuelo","Teclea el codigo de vuelo 'AEA...' hasta 5 numeros","^AEA[0-9][0-9]{4}$");
 
                 v = vueloDAO.search(codVuelo);
+
                 if (v == null){
                     JOptionPane.showMessageDialog((Component)null, "Vuelo no encontrado");
                 }else {
-                    v = this.DataValidationApplication();
+                    v = this.DataValidationApplication(codVuelo);
                     vueloDAO.update(v);
-                    isFinishedUpdate=true;
                 }
 
             }catch (Exception e){
                 System.out.println(e.getMessage());
             }
-        }while (!isFinishedUpdate);
     }
 
     public void delete(){
@@ -112,9 +109,8 @@ public class VueloControl {
         ArrayList<Vuelo> porFechas = vueloDAO.searchByDate(fechaSalida);
     }
 
-    private Vuelo DataValidationApplication(){
+    private Vuelo DataValidationApplication(String codVuelo){
 
-        String generatedCodVuelo = this.dataValidationApplication("Codigo de vuelo","Teclea el codigo de vuelo 'AEA...' hasta 5 numeros","^AEA[0-9][0-9]{4}$");
 
         LocalDate date = this.dateConversion(this.dataValidationApplication("Fecha de salida", "Teclea la fecha de salida del vuelo dd/mm/aaaa", "^[0-9]{2}/[0-9]{2}/[0-9]{4}$"));
 
@@ -122,7 +118,7 @@ public class VueloControl {
 
         String origin = this.dataValidationApplication("Origen","Teclea el origen del vuelo","^[A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+([ -][A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+)*$");
 
-        return new Vuelo(generatedCodVuelo,date,procedencia,origin);
+        return new Vuelo(codVuelo,date,procedencia,origin);
 
     }
     private String dataValidationApplication(String data,String msj,String pattern){

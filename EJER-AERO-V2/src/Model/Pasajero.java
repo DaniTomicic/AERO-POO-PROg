@@ -8,14 +8,14 @@ public class Pasajero {
     private String nombre;
     private String telefono;
     private String codVuelo;
-    private ArrayList<Vuelo> vuelos = new ArrayList();
+    private ArrayList<Vuelo> vuelos;
 
     public Pasajero(String dni, String nombre, String telefono, String codVuelo) {
         this.dni = dni;
         this.nombre = nombre;
         this.telefono = telefono;
         this.codVuelo = codVuelo;
-        this.vuelos = vuelos;
+        this.vuelos = new ArrayList<>();
     }
 
     public Pasajero(String dni, String nombre, String telefono) {
@@ -81,5 +81,11 @@ public class Pasajero {
                 + getNombre() + " - "
                 + getTelefono() + " - "
                 + getCodVuelo() +"\n";
+    }
+
+    public void setVuelos() {
+        if (vuelos == null) {
+            vuelos = new ArrayList<>();
+        }
     }
 }

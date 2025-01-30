@@ -48,12 +48,11 @@ public class PasajeroDAO {
     public void update(Pasajero p){
         pasajeroSQL="UPDATE pasajeros SET nombre = ?, telefono = ? WHERE DNI = ?";
         try(Connection con = DBCon.getConnection()){
-
             PreparedStatement ps = con.prepareStatement(pasajeroSQL);
 
-            ps.setString(2, p.getNombre());
-            ps.setString(3, p.getTelefono());
-            ps.setString(1, p.getDni());
+            ps.setString(1, p.getNombre());
+            ps.setString(2, p.getTelefono());
+            ps.setString(3, p.getDni());
             ps.executeUpdate();
 
         } catch (SQLException e){

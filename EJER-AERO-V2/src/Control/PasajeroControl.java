@@ -5,7 +5,6 @@ import Model.PasajeroDAO;
 import Model.Vuelo;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +29,9 @@ public class PasajeroControl {
                 p = this.dataValidationApplication(dni); // Creamos un nuevo pasajero
                 if (p != null) {
                     this.pasajeroDAO.create(p);
-                    JOptionPane.showMessageDialog(null, "El pasajero ya existe en la base de datos");
+                    this.searchAndAssignCodVuelo(dni);
+                    p.setVuelos();
+                    JOptionPane.showMessageDialog(null, "Pasajero dado de alta en la Base de Datos");
 
                 }
             } else {
@@ -45,29 +46,55 @@ public class PasajeroControl {
     public void update() {
         try {
             String dni = this.dataValidation("DNI", "Teclea el DNI del pasajero", "^[1-9][0-9]{7}[A-Z]$");
-            p = pasajeroDAO.search(dni);
+            Pasajero pas = pasajeroDAO.search(dni);
 
-            if (p == null) {
+            if (pas == null) {
                 JOptionPane.showMessageDialog(null, "No se encontró un pasajero con ese DNI");
                 return;
             }
 
-            JOptionPane.showMessageDialog(null, p.toString());
-
             String[] modificaciones = {"Nombre", "Teléfono", "Código de vuelo"};
-            String eleccion = (String) JOptionPane.showInputDialog(null, "Elija qué quiere modificar",
-                    "Opciones", JOptionPane.PLAIN_MESSAGE, null, modificaciones, modificaciones[0]);
 
-            p = this.dataValidationApplication(dni);
-            if (p != null) {
-                pasajeroDAO.update(p);
-                JOptionPane.showMessageDialog(null, "Pasajero actualizado correctamente");
+            String eleccion = (String) JOptionPane.showInputDialog(null,
+                    "Elija qué quiere modificar",
+                    "Opciones",
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    modificaciones,
+                    modificaciones[0]
+            );
+
+            switch (eleccion) {
+                case "Nombre" ->
+                        pas.setNombre(this.dataValidation("Nombre", "Teclea el nuevo nombre", "^[A-Za-zñÑáéíóúÁÉÍÓÚüÜ ]+$"));
+                case "Teléfono" ->
+                        pas.setTelefono(this.dataValidation("Teléfono", "Teclea el nuevo teléfono", "^[678][0-9]{8}$"));
+                case "Código de vuelo" -> {
+                    String nuevoCodVuelo = this.searchAndAssignCodVuelo(dni);
+                    pas.setCodVuelo(nuevoCodVuelo);
+
+                    ArrayList<Vuelo> vuelosEncontrados = pasajeroDAO.searchFlights(dni);
+
+                    if (vuelosEncontrados != null && !vuelosEncontrados.isEmpty()) {
+                        // ✅ Si hay vuelos, agregarlos a la lista de vuelos del pasajero
+                        pas.setVuelos(vuelosEncontrados);
+                        vueloDAO.setVuelosPasajeros(nuevoCodVuelo,dni);
+                    } else {
+                        // ✅ Si no hay vuelos, inicializar la lista vacía
+                        pas.setVuelos(new ArrayList<>());
+                    }
+                }
             }
+
+
+            pasajeroDAO.update(pas);
+            JOptionPane.showMessageDialog(null, "Pasajero actualizado correctamente");
 
         } catch (Exception e) {
             System.out.println("Error en la actualización: " + e.getMessage());
         }
     }
+
 
     public void delete() {
         try {
@@ -107,17 +134,17 @@ public class PasajeroControl {
     private Pasajero dataValidationApplication(String dni) {
         String name = this.dataValidation("Nombre", "Teclea el nombre del pasajero", "^[A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+([ -][A-Za-zñÑáéíóúÁÉÍÓÚüÜ]+)*$");
         String cellphone = this.dataValidation("Teléfono", "Teclea el número de teléfono del pasajero", "^[678][0-9]{8}$");
-
+        String codVuelo = this.searchAndAssignCodVuelo(dni);
 
         if (dni == null || dni.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Error: El DNI del pasajero no puede estar vacío.");
             return null;
         }
 
-        return new Pasajero(dni, name, cellphone, p.getCodVuelo());
+        return new Pasajero(dni, name, cellphone, codVuelo);
     }
 
-    private void searchAndAssignCodVuelo(String dni) {
+    private String searchAndAssignCodVuelo(String dni) {
         String codVuelo = this.dataValidation("codigo de vuelo","Teclea el codigo del vuelo","^AEA[0-9][0-9]{4}$");
         Vuelo v = vueloDAO.search(codVuelo);
 
@@ -126,6 +153,7 @@ public class PasajeroControl {
         }else {
             vueloDAO.setVuelosPasajeros(codVuelo,dni);
         }
+        return codVuelo;
     }
 
     public void searchFlightOfPassanger() {
@@ -168,6 +196,7 @@ public class PasajeroControl {
         do {
             try {
                 var = JOptionPane.showInputDialog(null, msj);
+
                 if (var == null || var.isEmpty()) {
                     JOptionPane.showMessageDialog(null, "El dato " + data + " no puede estar vacío");
                     continue;
