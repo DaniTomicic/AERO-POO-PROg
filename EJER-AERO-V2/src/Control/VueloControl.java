@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class VueloControl {
     private final VueloDAO vueloDAO;
-    private Vuelo v =new Vuelo();
+    private Vuelo v;
     public VueloControl(VueloDAO vueloDAO) {
 
         this.vueloDAO = vueloDAO;
@@ -21,7 +21,9 @@ public class VueloControl {
 
     public void insert(){
         try {
-            v = this.DataValidationApplication(v.getCodVuelo());
+            String codigoDeVuelo = this.dataValidationApplication("Codigo de vuelo","Teclea el codigo de vuelo 'AEA...' hasta 5 numeros","^AEA[0-9][0-9]{4}$");
+
+            v = this.DataValidationApplication(codigoDeVuelo);
             this.vueloDAO.create(v);
             JOptionPane.showMessageDialog((Component)null, "Vuelo insertado correctamente");
         } catch (Exception e){

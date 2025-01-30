@@ -65,10 +65,16 @@ public class PasajeroControl {
             );
 
             switch (eleccion) {
-                case "Nombre" ->
-                        pas.setNombre(this.dataValidation("Nombre", "Teclea el nuevo nombre", "^[A-Za-zñÑáéíóúÁÉÍÓÚüÜ ]+$"));
-                case "Teléfono" ->
-                        pas.setTelefono(this.dataValidation("Teléfono", "Teclea el nuevo teléfono", "^[678][0-9]{8}$"));
+                case "Nombre" -> {
+                    pas.setNombre(this.dataValidation("Nombre", "Teclea el nuevo nombre", "^[A-Za-zñÑáéíóúÁÉÍÓÚüÜ ]+$"));
+                    pasajeroDAO.update(pas);
+                }
+
+                case "Teléfono" -> {
+                    pas.setTelefono(this.dataValidation("Teléfono", "Teclea el nuevo teléfono", "^[678][0-9]{8}$"));
+                    pasajeroDAO.update(pas);
+                }
+
                 case "Código de vuelo" -> {
                     String nuevoCodVuelo = this.searchAndAssignCodVuelo(dni);
                     pas.setCodVuelo(nuevoCodVuelo);
@@ -76,11 +82,10 @@ public class PasajeroControl {
                     ArrayList<Vuelo> vuelosEncontrados = pasajeroDAO.searchFlights(dni);
 
                     if (vuelosEncontrados != null && !vuelosEncontrados.isEmpty()) {
-                        // ✅ Si hay vuelos, agregarlos a la lista de vuelos del pasajero
+
                         pas.setVuelos(vuelosEncontrados);
                         vueloDAO.setVuelosPasajeros(nuevoCodVuelo,dni);
                     } else {
-                        // ✅ Si no hay vuelos, inicializar la lista vacía
                         pas.setVuelos(new ArrayList<>());
                     }
                 }
